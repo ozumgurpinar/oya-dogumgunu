@@ -295,17 +295,19 @@ img { display: block; max-width: 100%; }
 
 .intro__scene {
   position: absolute;
+  top: 50%;
+  left: 50%;
   width: min(980px, calc(100% - 40px));
   opacity: 0;
   visibility: hidden;
-  transform: translateY(25px) scale(.98);
+  transform: translate(-50%, calc(-50% + 25px)) scale(.98);
   transition: opacity 1s ease, transform 1s cubic-bezier(.2, .8, .2, 1), visibility 1s;
 }
 
 .intro__scene.is-active {
   opacity: 1;
   visibility: visible;
-  transform: none;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .intro__scene--brand .intro__mark {
@@ -337,7 +339,14 @@ img { display: block; max-width: 100%; }
 }
 
 .intro__scene--reveal h1 {
-  font-size: clamp(48px, 8vw, 104px);
+  max-width: 900px;
+  margin-inline: auto;
+  font-size: clamp(44px, 7vw, 88px);
+  line-height: 1.04;
+}
+
+.intro__scene--reveal .intro__copy {
+  margin-bottom: 0;
 }
 
 .intro__launch {
