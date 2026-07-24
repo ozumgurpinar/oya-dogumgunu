@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌟 İyi ki Doğdun — Dijital Yıldızlar</title>
+<style>
+  :root{
+    --bg:#0b1026; --gold:#ffd35c; --pink:#ff6b9d;
+    --blue:#5cc8ff; --purple:#a97bff; --text:#f4f6ff; --muted:#a9b0d6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    background:radial-gradient(1200px 800px at 20% -10%,#1d2555 0,transparent 60%),
+               radial-gradient(1000px 700px at 100% 0%,#2a1a4a 0,transparent 55%),
+               var(--bg);
+    color:var(--text); overflow-x:hidden;
+  }
+  canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+  .stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .star{position:absolute;background:#fff;border-radius:50%;opacity:.5;animation:twinkle 3s infinite ease-in-out}
+  @keyframes twinkle{0%,100%{opacity:.2}50%{opacity:.9}}
+  section{position:relative;z-index:2;max-width:980px;margin:0 auto;padding:70px 24px}
+  /* HERO */
+  .hero{text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
+  .badge{display:inline-block;padding:8px 18px;border:1px solid rgba(255,211,92,.5);border-radius:999px;color:var(--gold);letter-spacing:2px;font-size:13px;margin-bottom:26px;text-transform:uppercase}
+  .hero h1{font-size:clamp(38px,8vw,86px);line-height:1.05;font-weight:800;
+    background:linear-gradient(120deg,var(--gold),var(--pink),var(--blue),var(--purple));
+    -webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:shine 6s linear infinite}
+  @keyframes shine{to{background-position:200% center}}
+  .hero p{margin-top:22px;font-size:clamp(16px,2.4vw,22px);color:var(--muted);max-width:640px}
+  .cta{margin-top:40px;padding:15px 34px;font-size:16px;font-weight:700;color:#111;border:none;border-radius:999px;cursor:pointer;
+    background:linear-gradient(120deg,var(--gold),var(--pink));box-shadow:0 10px 40px rgba(255,107,157,.4);transition:.2s}
+  .cta:hover{transform:translateY(-3px) scale(1.03)}
+  .scroll-hint{position:absolute;bottom:26px;color:var(--muted);font-size:13px;animation:bob 2s infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+  /* SECTION TITLES */
+  .stitle{text-align:center;font-size:clamp(26px,4vw,40px);font-weight:800;margin-bottom:12px}
+  .ssub{text-align:center;color:var(--muted);margin-bottom:44px}
+  .gold{color:var(--gold)}
+  /* CONSTELLATION — Ekipten Yıldızlar */
+  .constellation{position:relative;width:100%;max-width:920px;height:600px;margin:0 auto}
+  #lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  .node{position:absolute;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:3}
+  .node .st{width:var(--sz,34px);height:var(--sz,34px);margin:0 auto;
+    background:linear-gradient(135deg,var(--c1,#ffd35c),var(--c2,#ff6b9d));
+    clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    -webkit-clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    filter:drop-shadow(0 0 6px rgba(255,211,92,.55));transition:transform .2s,filter .2s;animation:tw 3s infinite ease-in-out}
+  .node:hover .st{transform:scale(1.25) rotate(8deg);filter:drop-shadow(0 0 15px rgba(255,211,92,.95))}
+  .node.active .st{transform:scale(1.3)}
+  .node .lbl{margin-top:7px;font-size:12px;color:var(--muted);white-space:nowrap;transition:.2s}
+  .node:hover .lbl{color:var(--gold)}
+  @keyframes tw{0%,100%{opacity:.72}50%{opacity:1}}
+  .node.director .st{--c1:#ffd35c;--c2:#ffb443;filter:drop-shadow(0 0 16px rgba(255,211,92,.9))}
+  .node.director .lbl{color:var(--gold);font-weight:800;font-size:15px;letter-spacing:.5px}
+  .node.director .crown{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:22px}
+  .starpop{position:absolute;z-index:9;width:260px;max-width:72vw;
+    background:linear-gradient(160deg,#1b2247,#141a3a);border:1px solid rgba(255,211,92,.5);border-radius:16px;
+    padding:20px 18px 16px;box-shadow:0 18px 50px rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .18s;transform:translate(-50%,-100%)}
+  .starpop.show{opacity:1;pointer-events:auto}
+  .starpop .pmsg{font-size:14px;line-height:1.55;color:#eef1ff}
+  .starpop .pname{margin-top:10px;font-weight:700;color:var(--gold);font-size:13px}
+  .starpop .px{position:absolute;top:8px;right:12px;color:var(--muted);cursor:pointer;font-size:15px;line-height:1}
+  /* GALLERY */
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:22px}
+  .polaroid{background:#f7f6f2;padding:12px 12px 0;border-radius:6px;transform:rotate(var(--r,-2deg));
+    box-shadow:0 12px 30px rgba(0,0,0,.4);transition:.25s}
+  .polaroid:hover{transform:rotate(0) translateY(-6px) scale(1.03)}
+  .polaroid img,.polaroid video{width:100%;display:block;border-radius:3px}
+  .polaroid .cap{color:#333;text-align:center;font-family:"Bradley Hand","Comic Sans MS",cursive;font-size:15px;padding:12px 4px 14px}
+  /* TIMELINE */
+  .timeline{position:relative;margin-top:20px;padding-left:28px}
+  .timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--blue),var(--purple))}
+  .tl-item{position:relative;margin-bottom:30px}
+  .tl-item::before{content:"";position:absolute;left:-28px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 5px rgba(255,211,92,.15)}
+  .tl-item h3{font-size:18px;color:var(--blue)}
+  .tl-item p{color:var(--muted);margin-top:6px;font-size:15px}
+  /* WORDCLOUD */
+  .cloud{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 22px;max-width:780px;margin:0 auto}
+  .cloud span{font-weight:800;line-height:1}
+  /* CINEMA — Gala sahnesi */
+  .screen .scrimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:2px;z-index:1}
+  .screen .cap2{position:absolute;bottom:0;left:0;right:0;padding:12px;text-align:center;z-index:4;
+    background:linear-gradient(transparent,rgba(0,0,0,.8));color:#ffd35c;font-weight:800;font-size:clamp(16px,3vw,26px);letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+  .screen .bulbs{z-index:3}
+
+  .cinema{position:relative;height:540px;max-width:900px;margin:0 auto;border-radius:20px;overflow:hidden;
+    background:linear-gradient(#0a0f24,#05070f);border:1px solid rgba(255,255,255,.08);cursor:pointer}
+  .spot{position:absolute;top:-20%;width:230px;height:150%;pointer-events:none;mix-blend-mode:screen;
+    background:linear-gradient(180deg,rgba(255,211,92,.28),rgba(255,211,92,0));filter:blur(6px)}
+  .spot.l{left:12%;transform-origin:top center;animation:sweepL 5s ease-in-out infinite}
+  .spot.r{right:12%;transform-origin:top center;animation:sweepR 5s ease-in-out infinite}
+  @keyframes sweepL{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(10deg)}}
+  @keyframes sweepR{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-10deg)}}
+  .screen{position:absolute;top:34px;left:50%;transform:translateX(-50%);width:74%;height:270px;
+    border-radius:10px;background:radial-gradient(circle at 50% 38%,#26306a,#0b1026);
+    box-shadow:0 0 60px 14px rgba(124,180,255,.25);border:10px solid #0e1330;display:flex;align-items:center;justify-content:center;z-index:2}
+  .screen .bulbs{position:absolute;inset:6px;border-radius:6px;pointer-events:none}
+  .screen .bulbs::before{content:"";position:absolute;inset:0;border-radius:6px;
+    background:repeating-linear-gradient(90deg,#ffd35c 0 6px,transparent 6px 20px) top/100% 4px no-repeat,
+               repeating-linear-gradient(90deg,#ffd35c 0 6px,transparent 6px 20px) bottom/100% 4px no-repeat,
+               repeating-linear-gradient(0deg,#ffd35c 0 6px,transparent 6px 20px) left/4px 100% no-repeat,
+               repeating-linear-gradient(0deg,#ffd35c 0 6px,transparent 6px 20px) right/4px 100% no-repeat;
+    animation:blink 1s steps(2) infinite;opacity:.9}
+  @keyframes blink{50%{opacity:.35}}
+  .namebox{text-align:center;z-index:3;padding:10px}
+  .namebox .kutlu{color:#eef1ff;letter-spacing:4px;font-size:14px;text-transform:uppercase}
+  .namebox .big{font-size:clamp(46px,9vw,96px);font-weight:900;letter-spacing:6px;
+    background:linear-gradient(120deg,#ffd35c,#ff6b9d,#5cc8ff);-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 30px rgba(255,211,92,.35);line-height:1.05}
+  .namebox .sub{color:#ffd35c;margin-top:4px;font-size:22px}
+  .wall{position:absolute;top:0;bottom:0;width:15%;z-index:1;pointer-events:none}
+  .wall.l{left:0}.wall.r{right:0}
+  .wall .speaker{position:absolute;top:14px;width:26px;height:42px;background:#0d1226;border:2px solid #2a3352;border-radius:4px}
+  .wall.l .speaker{left:14%}.wall.r .speaker{right:14%}
+  .wall .exit{position:absolute;top:24%;font-size:9px;color:#7CFF9B;background:#0a1a10;border:1px solid #1f5f3a;padding:2px 5px;border-radius:3px;letter-spacing:1px}
+  .wall.l .exit{left:14%}.wall.r .exit{right:14%}
+  .wall .door{position:absolute;top:32%;width:52px;height:150px;border:3px solid #2a3352;border-radius:6px;background:#141a30}
+  .wall.l .door{left:16%}.wall.r .door{right:16%}
+  .seatrow{position:absolute;bottom:0;left:-3%;right:-3%;height:92px;display:flex;justify-content:center;z-index:3}
+  .seat{width:92px;height:92px;margin:0 -3px;border-radius:22px 22px 0 0;background:linear-gradient(#7a2233,#521523);box-shadow:inset 0 8px 16px rgba(0,0,0,.35)}
+  .audience{position:absolute;bottom:12px;left:0;right:0;height:150px;display:flex;justify-content:center;align-items:flex-end;z-index:4}
+  .head{position:relative;width:80px;height:120px;margin:0 -4px}
+  .head .sh{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80px;height:54px;border-radius:42px 42px 0 0;background:var(--shirt,#1a2148)}
+  .head .hd{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);width:54px;height:60px;border-radius:50% 50% 45% 45%;background:var(--hair,#2b2320);box-shadow:inset -6px -4px 10px rgba(0,0,0,.25)}
+  .head .hand{position:absolute;bottom:92px;left:50%;font-size:20px;transform:translateX(-50%);animation:clap .55s infinite ease-in-out}
+  @keyframes clap{0%,100%{transform:translateX(-50%) rotate(-18deg) translateY(2px)}50%{transform:translateX(-50%) rotate(18deg) translateY(-7px)}}
+  .bravo{position:absolute;bottom:120px;font-size:20px;font-weight:800;color:#ffd35c;z-index:5;pointer-events:none;
+    animation:rise 2.2s ease-out forwards;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+  @keyframes rise{0%{opacity:0;transform:translateY(0) scale(.7)}15%{opacity:1}100%{opacity:0;transform:translateY(-150px) scale(1.1)}}
+  .cinema .tap{position:absolute;top:10px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:12px;z-index:6;opacity:.7}
+  /* WISH — kayan yıldız & dilek */
+  .shoot{position:fixed;top:10%;left:-12%;width:130px;height:2px;z-index:60;pointer-events:none;
+    background:linear-gradient(90deg,transparent,#fff);border-radius:2px;opacity:0}
+  .shoot::after{content:"";position:absolute;right:0;top:-2px;width:6px;height:6px;border-radius:50%;
+    background:#fff;box-shadow:0 0 14px 5px rgba(255,255,255,.95)}
+  .shoot.run{animation:shootAcross 1.2s ease-in forwards}
+  @keyframes shootAcross{0%{opacity:0;transform:translate(0,0) rotate(20deg)}12%{opacity:1}100%{opacity:0;transform:translate(122vw,46vh) rotate(20deg)}}
+  .wishbtn{margin-top:16px;background:transparent;border:1px solid rgba(255,211,92,.55);color:var(--gold);
+    padding:12px 24px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:700;transition:.2s}
+  .wishbtn:hover{background:rgba(255,211,92,.12);transform:translateY(-2px)}
+  .wishmodal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:rgba(4,7,15,.82);backdrop-filter:blur(6px)}
+  .wishmodal.show{display:flex}
+  .wishcard{max-width:370px;width:90%;text-align:center;background:linear-gradient(160deg,#1b2247,#141a3a);
+    border:1px solid rgba(255,211,92,.5);border-radius:22px;padding:34px 26px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+  .wishcard h3{font-size:23px;margin-bottom:6px;color:#fff}
+  .wishcard p{color:var(--muted);font-size:14px;margin-bottom:18px;line-height:1.5}
+  .wishcard input{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;padding:13px;font-size:15px;text-align:center;font-family:inherit}
+  .wishcard input:focus{outline:none;border-color:var(--gold)}
+  .wishcard button{margin-top:16px;background:linear-gradient(120deg,var(--gold),var(--pink));color:#111;border:none;border-radius:999px;padding:13px 28px;font-weight:800;cursor:pointer;font-size:15px}
+  .wishdone{font-size:16px;color:#fff;line-height:1.7}
+  /* FOOTER */
+  .foot{text-align:center;padding-bottom:90px}
+  .foot .big{font-size:clamp(28px,5vw,52px);font-weight:800;
+    background:linear-gradient(120deg,var(--gold),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .foot small{display:block;margin-top:18px;color:var(--muted)}
+  .demo-note{max-width:980px;margin:0 auto;padding:14px 24px 40px;color:#8a90bb;font-size:12px;text-align:center;opacity:.7}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="stars" id="stars"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="badge">🌟 Dijital Yıldızlar sunar</span>
+  <h1 id="heroTitle"></h1>
+  <p>Dijital dönüşümde bize liderlik eden, hepimize ilham veren yol arkadaşımıza ekipçe doğum günü sürprizi 🎂</p>
+  <button class="cta" onclick="celebrate()">🎉 Kutlamayı Başlat</button>
+  <button class="wishbtn" onclick="openWish()">🌠 Dilek Tut</button>
+  <div class="scroll-hint">↓ aşağı kaydır</div>
+</section>
+
+<!-- CONSTELLATION -->
+<section>
+  <h2 class="stitle">Ekipten <span class="gold">Yıldızlar</span></h2>
+  <p class="ssub">Her yıldız bir ekip üyesi — üstüne tıkla, sözünü göster ✨ Kümenin sonundaki büyük yıldız 👑 liderimiz.</p>
+  <div class="constellation" id="constellation">
+    <svg id="lines"></svg>
+    <div class="starpop" id="starpop"></div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section>
+  <h2 class="stitle">Anı <span class="gold">Duvarı</span></h2>
+  <p class="ssub">Videodan kısa kesitler — otomatik oynar 🎬</p>
+  <div class="gallery" id="gallery"></div>
+</section>
+
+<!-- TIMELINE -->
+<section>
+  <h2 class="stitle">Birlikte <span class="gold">Neler Başardık</span></h2>
+  <p class="ssub">Dijital Yıldızlar'ın bir yıllık serüveni</p>
+  <div class="timeline" id="timeline"></div>
+</section>
+
+<!-- WORD CLOUD -->
+<section>
+  <h2 class="stitle">Tek Kelimeyle <span class="gold">Liderimiz</span></h2>
+  <p class="ssub">Ekibin gözünden</p>
+  <div class="cloud" id="cloud"></div>
+</section>
+
+<!-- CINEMA GALA -->
+<section>
+  <h2 class="stitle">Oya'nın <span class="gold">Galası</span> 🎬</h2>
+  <p class="ssub">Bütün ekip ayakta alkışlıyor — sahneye tıkla 👏</p>
+  <div class="cinema" id="cinema" onclick="applause()">
+    <div class="spot l"></div><div class="spot r"></div>
+    <div class="wall l"><div class="speaker"></div><span class="exit">ÇIKIŞ</span><div class="door"></div></div>
+    <div class="wall r"><div class="speaker"></div><span class="exit">ÇIKIŞ</span><div class="door"></div></div>
+    <div class="tap">👆 tıkla</div>
+    <div class="screen">
+      <img class="scrimg" src="frame_1.jpg" alt="ekip">
+      <div class="bulbs"></div>
+      <div class="cap2">🎂 İyi ki doğdun Oya! 🌟</div>
+    </div>
+    <div class="seatrow" id="seatrow"></div>
+    <div class="audience" id="audience"></div>
+  </div>
+</section>
+<!-- FOOTER -->
+<section class="foot">
+  <div class="big">Nice mutlu, yıldızlı yıllara! 🎂✨</div>
+  <small>Sevgiyle — Dijital Yıldızlar 🌟</small>
+</section>
+<div class="demo-note">⚠️ Bu bir DENEME sürümüdür — isimler, mesajlar ve fotoğraflar örnektir. Gerçek içerik gelince birlikte değiştireceğiz.</div>
+
+<script>
+/* ============================================================
+   İÇERİK — buradaki verileri değiştirmek yeterli.
+   ============================================================ */
+const DIREKTOR = "Oya Türkmen";                // direktörümüz
+
+const messages = [
+  {name:"Zeynep A.", word:"vizyoner",   msg:"İlk toplantımızda 'korkmayın, yapay zeka işinizi değil sıkıcı kısmını alacak' demiştin. O cümle grubun mottosu oldu."},
+  {name:"Can T.",    word:"sabırlı",    msg:"Bir projede tıkandığımda 'hadi bir de makineye soralım' deyip yanıma oturmuştun. O sabır bana çok şey kattı."},
+  {name:"Merve K.",  word:"birleştirici",msg:"Gönüllü kurulan bu grubu resmen bir aileye çevirdin. Cuma demolarını iple çekiyorum."},
+  {name:"Burak Ö.",  word:"cesur",      msg:"Senden 'her fikri önce ciddiye al' öğrendim. Toplantıda en çılgın fikri bile dinlemen harika."},
+  {name:"Ayşe Y.",   word:"meraklı",    msg:"Yeni bir araç çıktığında ilk deneyip bize anlatan sen oluyorsun. Enerjine yetişemiyoruz!"},
+  {name:"Deniz S.",  word:"destekçi",   msg:"Sunumdan önce 'sen yaparsın' deyip omzuma vurmuştun. O an unutulmaz."},
+  {name:"Emre B.",   word:"ilham",      msg:"Bize sadece araç değil, bakış açısı öğrettin. İyi ki liderimizsin."},
+  {name:"Selin M.",  word:"enerji",     msg:"Doğum günün kutlu olsun! Nice yıldızlı yıllara 🎂✨"},
+];
+
+const projects = [
+  {t:"Grubun Kuruluşu",        d:"Gönüllülükle, 'kendimizi geliştirelim' diyerek yola çıktık."},
+  {t:"Akıllı Destek Asistanı", d:"Müşteri destek sorularını yanıtlayan bir AI prototipi geliştirdik."},
+  {t:"Rapor Otomasyonu",       d:"Haftalık raporları dakikalar içinde hazırlayan bir akış kurduk."},
+  {t:"Prompt Kütüphanesi",     d:"Ekibin en iyi promptlarını paylaştığı ortak bir kaynak oluşturduk."},
+  {t:"İç Eğitim Serisi",       d:"Herkese açık haftalık AI atölyeleri düzenledik."},
+  {t:"Ve dahası...",           d:"Bu daha başlangıç. 🚀"},
+];
+
+const gallery = [
+  {cap:"Boğaz'da ekip 🌊", src:"clip_new.gif"},
+  {cap:"Sahne provası 🎹", src:"clip_2.gif"},
+  {cap:"Ofiste jam 🎸", src:"clip_3.gif"},
+  {cap:"Stüdyoda 🎧", src:"clip_4.gif"},
+  {cap:"Kayıt günü 🎤", src:"clip_5.gif"},
+  {cap:"Alkışlar 👏", src:"clip_6.gif"},
+];
+
+/* ============================================================
+   OTOMATİK OLUŞTURMA — aşağısını değiştirmene gerek yok
+   ============================================================ */
+const palette=["#ffd35c","#ff6b9d","#5cc8ff","#a97bff","#7CFF9B","#ffab73"];
+
+document.getElementById("heroTitle").innerHTML = "İyi ki Doğdun<br>"+DIREKTOR+"!";
+
+// ---- Ekipten Yıldızlar (takımyıldızı) ----
+const cont=document.getElementById("constellation");
+const svg=document.getElementById("lines");
+const pop=document.getElementById("starpop");
+
+// Üyeleri bir kümede konumlandır (% cinsinden), sonda direktör
+function layout(n){const pts=[];for(let i=0;i<n;i++){const t=n>1?i/(n-1):0;
+  let x=10+t*64; let y=70-t*6+Math.sin(i*1.7)*18; y=Math.max(16,Math.min(84,y));
+  pts.push({x,y});}return pts;}
+const pts=layout(messages.length);
+const dir={x:87,y:32};
+
+// Bağlantı çizgileri
+svg.setAttribute("viewBox","0 0 100 100");
+svg.setAttribute("preserveAspectRatio","none");
+const allpts=[...pts,dir];
+svg.innerHTML=`<polyline points="${allpts.map(p=>p.x+","+p.y).join(" ")}" fill="none"
+  stroke="rgba(255,211,92,.35)" stroke-width="1" vector-effect="non-scaling-stroke" stroke-dasharray="3 3"/>`;
+
+let activeNode=null;
+function showPop(p,msg,name,node){
+  if(activeNode)activeNode.classList.remove("active");
+  node.classList.add("active");activeNode=node;
+  pop.innerHTML=`<span class="px" onclick="hidePop(event)">✕</span>
+    <div class="pmsg">${msg}</div><div class="pname">— ${name}</div>`;
+  pop.style.left=Math.max(20,Math.min(80,p.x))+"%";
+  pop.style.top=p.y+"%";
+  pop.style.transform = (p.y<38) ? "translate(-50%,26px)" : "translate(-50%,calc(-100% - 22px))";
+  pop.classList.add("show");
+}
+function hidePop(e){if(e)e.stopPropagation();pop.classList.remove("show");
+  if(activeNode){activeNode.classList.remove("active");activeNode=null;}}
+window.hidePop=hidePop;
+cont.addEventListener("click",()=>hidePop());
+
+// Üye yıldızları
+messages.forEach((m,i)=>{const p=pts[i];
+  const el=document.createElement("div");el.className="node";
+  el.style.left=p.x+"%";el.style.top=p.y+"%";
+  const sz=28+((i*7)%12), c1=palette[i%palette.length], c2=palette[(i+2)%palette.length];
+  el.innerHTML=`<div class="st" style="--sz:${sz}px;--c1:${c1};--c2:${c2};animation-delay:${(i*0.3).toFixed(1)}s"></div><div class="lbl">${m.name}</div>`;
+  el.onclick=e=>{e.stopPropagation();showPop(p,m.msg,m.name,el);};
+  cont.appendChild(el);});
+
+// Direktör yıldızı (kümenin sonu)
+const d=document.createElement("div");d.className="node director";
+d.style.left=dir.x+"%";d.style.top=dir.y+"%";
+d.innerHTML=`<div class="crown">👑</div><div class="st" style="--sz:74px"></div><div class="lbl">${DIREKTOR}</div>`;
+d.onclick=e=>{e.stopPropagation();
+  showPop(dir,`İyi ki doğdun ${DIREKTOR}! Bütün yıldızlar bugün senin için parlıyor 🎂✨`,"Dijital Yıldızlar",d);
+  celebrate();};
+cont.appendChild(d);
+
+// Galeri — yer tutucu "fotoğraf" (gradyan + ikon), polaroid çerçeve
+function photoSVG(icon,i){const c1=palette[i%palette.length],c2=palette[(i+3)%palette.length];
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='230'>
+    <defs><linearGradient id='g${i}' x1='0' y1='0' x2='1' y2='1'>
+    <stop offset='0' stop-color='${c1}'/><stop offset='1' stop-color='${c2}'/></linearGradient></defs>
+    <rect width='300' height='230' fill='url(#g${i})'/>
+    <text x='150' y='140' font-size='90' text-anchor='middle'>${icon}</text></svg>`;
+  return "data:image/svg+xml;utf8,"+encodeURIComponent(svg);}
+document.getElementById("gallery").innerHTML = gallery.map((g,i)=>`
+  <figure class="polaroid" style="--r:${(i%2?2:-2)+(i-1)}deg">
+    <img src="${g.src}" alt="${g.cap}">
+    <figcaption class="cap">${g.cap}</figcaption>
+  </figure>`).join("");
+
+// Zaman tüneli
+document.getElementById("timeline").innerHTML = projects.map(p=>`
+  <div class="tl-item"><h3>${p.t}</h3><p>${p.d}</p></div>`).join("");
+
+// Kelime bulutu (mesajlardaki kelimeler + birkaç ek)
+const extra=["güler yüzlü","yenilikçi","lider","pozitif"];
+const words=[...new Set(messages.map(m=>m.word).concat(extra))];
+document.getElementById("cloud").innerHTML = words.map((w,i)=>
+  `<span style="font-size:${18+Math.random()*30}px;color:${palette[i%palette.length]}">${w}</span>`).join("");
+
+// Yıldız arka planı
+const stars=document.getElementById("stars");
+for(let i=0;i<70;i++){const s=document.createElement("div");s.className="star";
+  const sz=Math.random()*2+1;s.style.width=sz+"px";s.style.height=sz+"px";
+  s.style.left=Math.random()*100+"%";s.style.top=Math.random()*100+"%";
+  s.style.animationDelay=Math.random()*3+"s";stars.appendChild(s);}
+
+// Konfeti
+const cv=document.getElementById("confetti"),ctx=cv.getContext("2d");
+let W,H,parts=[];function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}resize();addEventListener("resize",resize);
+const cc=["#ffd35c","#ff6b9d","#5cc8ff","#a97bff","#7CFF9B"];
+function burst(n){for(let i=0;i<n;i++)parts.push({x:Math.random()*W,y:-20,r:Math.random()*7+4,
+  c:cc[Math.floor(Math.random()*cc.length)],vx:(Math.random()-.5)*4,vy:Math.random()*3+2,
+  a:Math.random()*Math.PI,va:(Math.random()-.5)*.3});}
+function loop(){ctx.clearRect(0,0,W,H);parts.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.a+=p.va;
+  ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);ctx.restore();
+  if(p.y>H+30)parts.splice(i,1);});requestAnimationFrame(loop);}loop();
+function celebrate(){burst(160);setTimeout(()=>burst(120),300);setTimeout(()=>burst(120),700);}
+window.celebrate=celebrate;
+addEventListener("load",()=>setTimeout(celebrate,500));
+
+// ---- Gala sahnesi: seyirci + alkış ----
+(function(){
+  const aud=document.getElementById("audience"),cin=document.getElementById("cinema");
+  const seatrow=document.getElementById("seatrow");
+  const hairs=["#3a2b22","#111214","#6b4a2b","#e0c070","#8a5a3c","#2b2320","#c9a24a"];
+  const shirts=["#1a2148","#3a2246","#123a3a","#402016","#22304f","#4a1e2a"];
+  const N=11;
+  for(let i=0;i<N;i++){const st=document.createElement("div");st.className="seat";if(seatrow)seatrow.appendChild(st);}
+  for(let i=0;i<N;i++){const h=document.createElement("div");h.className="head";
+    const sc=0.85+((i*13)%30)/100;
+    h.style.setProperty("--hair",hairs[i%hairs.length]);
+    h.style.setProperty("--shirt",shirts[i%shirts.length]);
+    h.style.transform="scale("+sc.toFixed(2)+")";
+    h.innerHTML='<div class="hand" style="animation-delay:'+((i%5)*0.12).toFixed(2)+'s">👏</div><div class="hd"></div><div class="sh"></div>';
+    if(aud)aud.appendChild(h);}
+  window.applause=function(){
+    if(typeof celebrate==="function")celebrate();
+    const words=["Bravo!","👏","İyi ki varsın!","🎉","Oya! Oya!","🌟"];
+    for(let i=0;i<10;i++){setTimeout(()=>{const b=document.createElement("div");
+      b.className="bravo";b.textContent=words[Math.floor(Math.random()*words.length)];
+      b.style.left=(10+Math.random()*80)+"%";cin.appendChild(b);
+      setTimeout(()=>b.remove(),2300);},i*120);}
+  };
+})();
+
+// ---- Kayan yıldız & dilek ----
+(function(){
+  function runShoot(){var shoot=document.getElementById("shoot"); if(!shoot) return; shoot.classList.remove("run");void shoot.offsetWidth;shoot.classList.add("run");}
+  window.runShoot=runShoot;
+  setTimeout(runShoot,2600); setInterval(runShoot,9000);
+  window.openWish=function(){runShoot();setTimeout(()=>document.getElementById("wishModal").classList.add("show"),450);
+    setTimeout(()=>{var i=document.getElementById("wishInput"); if(i) i.focus();},700);};
+  window.makeWish=function(){
+    const v=document.getElementById("wishInput").value.trim();
+    const card=document.getElementById("wishCard");
+    card.innerHTML='<div style="font-size:54px">🌠</div><div class="wishdone">Dileğin yıldızlara ulaştı'
+      +(v?': <br><b style="color:var(--gold)">\u201c'+v.replace(/</g,"&lt;")+'\u201d</b>':'')
+      +'<br><br>\u2728 Gerçek olsun! \u2728</div><br><button onclick="document.getElementById(\'wishModal\').classList.remove(\'show\')">Kapat</button>';
+    if(typeof celebrate==="function")celebrate();
+    for(let i=0;i<4;i++)setTimeout(runShoot,i*550);
+  };
+  document.addEventListener("click",function(e){if(e.target&&e.target.id==="wishModal")e.target.classList.remove("show");});
+})();
+</script>
+<div class="shoot" id="shoot"></div>
+<div class="wishmodal" id="wishModal">
+  <div class="wishcard" id="wishCard">
+    <div style="font-size:46px">🌠</div>
+    <h3>Bir dilek tut</h3>
+    <p>Bir yıldız kaydı! Oya için (ya da kendin için) bir dilek yaz ✨</p>
+    <input id="wishInput" placeholder="Dileğim..." maxlength="120">
+    <br><button onclick="makeWish()">Diledim ✨</button>
+  </div>
+</div>
+</body>
+</html>
