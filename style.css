@@ -31,12 +31,49 @@ img { display: block; max-width: 100%; }
 
 #confetti { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
 .ambient { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: -1; }
-.ambient::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px); background-size: 64px 64px; mask-image: linear-gradient(to bottom, #000, transparent 75%); }
+.ambient::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 18% 20%, rgba(246,200,95,.05), transparent 22%), radial-gradient(circle at 82% 65%, rgba(167,125,255,.07), transparent 28%), linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px); background-size: auto, auto, 72px 72px, 72px 72px; mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,.75) 72%, transparent); }
 .ambient__orb { position: absolute; border-radius: 50%; filter: blur(110px); opacity: .17; }
 .ambient__orb--one { width: 500px; height: 500px; background: var(--cyan); right: -150px; top: -170px; }
 .ambient__orb--two { width: 430px; height: 430px; background: #7138d8; left: -220px; top: 35%; }
-.ambient__stars span { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; opacity: var(--opacity); animation: twinkle var(--duration) ease-in-out infinite alternate; }
-@keyframes twinkle { to { opacity: .1; transform: scale(.5); } }
+.ambient__stars span { position: absolute; width: var(--size, 2px); height: var(--size, 2px); border-radius: 50%; background: #fff7df; opacity: var(--opacity); box-shadow: 0 0 calc(var(--size, 2px) * 4) rgba(246,200,95,.45); animation: twinkle var(--duration) ease-in-out infinite alternate; }
+.ambient__stars span.is-bright { background: var(--cyan); box-shadow: 0 0 16px rgba(246,200,95,.75); }
+@keyframes twinkle { to { opacity: .12; transform: scale(.55); } }
+
+.ambient__constellation {
+  position: absolute;
+  z-index: 1;
+  overflow: visible;
+  opacity: .28;
+  filter: drop-shadow(0 0 8px rgba(167,125,255,.2));
+}
+.ambient__constellation path { fill: none; stroke: rgba(167,125,255,.38); stroke-width: 1; stroke-dasharray: 4 8; vector-effect: non-scaling-stroke; }
+.ambient__constellation circle { fill: #ffe7aa; filter: drop-shadow(0 0 5px rgba(246,200,95,.8)); }
+.ambient__constellation--one { width: min(42vw, 560px); right: -4vw; top: 12vh; transform: rotate(-7deg); }
+.ambient__constellation--two { width: min(30vw, 400px); left: -3vw; bottom: 6vh; transform: rotate(11deg); opacity: .2; }
+
+.shooting-stars span {
+  position: absolute;
+  z-index: 2;
+  top: var(--top);
+  left: -15vw;
+  width: 120px;
+  height: 1px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent, rgba(255,231,170,.9));
+  opacity: 0;
+  transform: rotate(-18deg);
+  animation: shooting-star 12s var(--delay) linear infinite;
+}
+.shooting-stars span::after { content: ""; position: absolute; right: -2px; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: #fff7df; box-shadow: 0 0 13px 4px rgba(246,200,95,.7); }
+.shooting-stars span:nth-child(1) { --top: 17%; --delay: 1s; }
+.shooting-stars span:nth-child(2) { --top: 48%; --delay: 6.5s; animation-duration: 15s; }
+.shooting-stars span:nth-child(3) { --top: 76%; --delay: 10s; animation-duration: 18s; }
+@keyframes shooting-star {
+  0%, 72% { opacity: 0; transform: translate3d(0,0,0) rotate(-18deg); }
+  74% { opacity: 1; }
+  82% { opacity: 0; transform: translate3d(130vw,42vh,0) rotate(-18deg); }
+  100% { opacity: 0; }
+}
 
 .intro {
   position: fixed;
@@ -493,10 +530,13 @@ img { display: block; max-width: 100%; }
   .intro__scene--reveal h1 { font-size: clamp(44px, 14vw, 70px); }
   .intro__skip { top: 15px; right: 12px; }
   .intro__beam { width: 45vw; }
+  .ambient__constellation--one { width: 78vw; right: -35vw; opacity: .24; }
+  .ambient__constellation--two { width: 62vw; left: -30vw; opacity: .16; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .intro__progress,
   .intro__beam { display: none; }
   .sound-bars i { animation: none; }
+  .shooting-stars { display: none; }
 }

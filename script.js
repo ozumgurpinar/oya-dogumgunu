@@ -84,7 +84,7 @@
 
   function createStars() {
     const field = $("#stars");
-    const count = reducedMotion ? 18 : mobile.matches ? 38 : 72;
+    const count = reducedMotion ? 24 : mobile.matches ? 58 : 112;
     field.innerHTML = "";
     const fragment = document.createDocumentFragment();
     for (let index = 0; index < count; index += 1) {
@@ -93,6 +93,8 @@
       star.style.top = `${Math.random() * 100}%`;
       star.style.setProperty("--opacity", (Math.random() * .55 + .18).toFixed(2));
       star.style.setProperty("--duration", `${Math.random() * 3 + 2}s`);
+      star.style.setProperty("--size", `${(Math.random() * 1.9 + .8).toFixed(1)}px`);
+      if (index % 17 === 0) star.classList.add("is-bright");
       fragment.append(star);
     }
     field.append(fragment);
