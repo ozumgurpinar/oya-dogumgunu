@@ -133,7 +133,7 @@
         particle.y = window.innerHeight + 5;
         particle.x = Math.random() * window.innerWidth;
       }
-      introContext.fillStyle = `rgba(160,243,233,${particle.opacity})`;
+      introContext.fillStyle = `rgba(255,225,154,${particle.opacity})`;
       introContext.beginPath();
       introContext.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
       introContext.fill();
@@ -320,7 +320,7 @@
 
   function celebrate(amount = 130) {
     if (reducedMotion || !confettiContext) return;
-    const colors = ["#4de2d0", "#a0f3e9", "#f0c978", "#ffffff", "#4d7fe2"];
+    const colors = ["#f6c85f", "#ffe7aa", "#a77dff", "#ffffff", "#6f4bd8"];
     for (let index = 0; index < amount; index += 1) {
       confetti.push({
         x: window.innerWidth * (.08 + Math.random() * .84),
